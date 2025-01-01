@@ -1,0 +1,55 @@
+PROJECT2: Re-architect The Web Application (devops1) Using Cloud Native Services
+
+NB: Cloud Native Services used are Amazon RDS (MYSQL Database), Amazon MQ (Message Broker - RabbitMQ), Amazon ElastiCache (DB Caching - Memcache), EC2, Elastic Beanstalk, and CloudFront.
+
+Steps taken in the project:
+
+1.Clone the Project from GitHub: Pull the project source code (-b awsrefactor)  from the web (https://github.com/hkhcoder/vprofile-project.git.) into my personal computer and understood the project setup in order to correctly deploy to AWS cloud native environments.
+
+2. Understanding the Project Parts: Rather than hosting the different components of the projects on ec2 instances, including instances hosting services like MYSQL, TOMCAT, MEMCACHED, and RABBITMQ, I decided to use AWS cloud native services like Amazon RDS (MYSQL Database), Amazon MQ (Message Broker - RabbitMQ), Amazon ElastiCache (DB Caching - Memcache), EC2, Elastic Beanstalk, and CloudFront to host the application necessary components.
+
+3. On AWS - Creating Necessary Security Groups: Created a security group (vprofile-backend-services) for the cloud native services (backend), including RDS, MQ, and ElastiCache. The security group has the following inbound traffic:
+
+	All traffic --> All ports --> Accessible by it own security group (SG)
+
+4. On AWS, created a RDS instance. Clicked on the Amazon RDS service and firstly, created a parameter group (to specify a different and more personalized settings for my instance) and a subnet group (a new subnet group specific for the instance). Secondly, I created the db instance - specifically a MYSQL instance.
+
+5. On AWS, created a new ec2 instance to initialize the database. I ensured that the instance has a ssh access from my IP and initialized my rds database. Here are some commands i used:
+
+	apt-get install mysql-client git ---> this will install mysql-client and git on the instance
+	git clone -b awsrefactor https://github.com/hkhcoder/vprofile-project.git --> this will clone the branch hosting the db.sql file
+	mysql -h <rds-instance-i-created-host-address> -u admin -p accounts < src/main/resources/db_backup.sql --> redirect the database file to the rds database instance
+
+6. On AWS, created an Amazon MQ instance. Clicked on the Amazon MQ service and firstly, created a parameter group (to specify a different and more personalized settings for my instance) and a subnet group (a new subnet group specific for the instance). Secondly, I created the instance - specifically a memcache instance.
+
+7. On AWS, created an Amazon Elasticache instance. Clicked on the Elasticache service and created it - specifically a RabbitMQ instance
+
+8. On my PC, I cloned the project file and navigated into the application.properties file and updated the db, memcache,and RabbitMQ hosts using the host addresses from the created Amazon RDS, Elasticache, and MQ cloud native services.
+
+#JDBC Configutation for Database Connection
+jdbc.driverClassName=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://vprofile-rearch-rds.cx2oseoa4dqj.eu-north-1.rds.amazonaws.com:3306/accounts?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull
+jdbc.username=admin
+jdbc.password=H7bJbeeerG1D4m8x
+
+#Memcached Configuration For Active and StandBy Host
+#For Active Host
+memcached.active.host=vprofile-rearch-elc.p8kdkc.cfg.eun1.cache.amazonaws.com:11211
+memcached.active.port=11211
+#For StandBy Host
+memcached.standBy.host=127.0.0.2
+memcached.standBy.port=11211
+
+#RabbitMq Configuration
+rabbitmq.address=b-e62b3eed-4f86-4936-8a82-b9891a3425a4.mq.eu-north-1.amazonaws.com:5671
+rabbitmq.port=5671
+rabbitmq.username=rabbit
+rabbitmq.password=Verg4teRabytyQ
+
+8. On my PC, in the project directory, I built the artifact using the "mvn install" command
+
+9. On AWS, used Elastic Beanstalk to create a beanstalk web tier environment specifically for tomcat applications. I ensured that it's scalable - which automatically will create load balancers, target groups, and auto scaling groups, and it own security groups. Also, beanstalk requires an beanstalk-ec2-service role that allows the instances it create to access the beanstalk application. After, I uploaded the build artifacts in the beanstalk environment. 
+
+10. On AWS, used AWS CloudFront to create a content delivery network that allows the application to be available quickly to anyone from across the world. It uses Edge Locations to help client who are closer to these edge locations to quickly access the web application. The CloudFront services points to load balancer of the beanstalk environment. Also, we can use the host address of the cloudfront application and point it to a domain name.
+
+In conclusion, I rearchitect the app using AWS cloud native service.
