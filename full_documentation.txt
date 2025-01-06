@@ -20,9 +20,9 @@ Steps taken in the project:
 	git clone -b awsrefactor https://github.com/hkhcoder/vprofile-project.git --> this will clone the branch hosting the db.sql file
 	mysql -h <rds-instance-i-created-host-address> -u admin -p accounts < src/main/resources/db_backup.sql --> redirect the database file to the rds database instance
 
-6. On AWS, created an Amazon MQ instance. Clicked on the Amazon MQ service and firstly, created a parameter group (to specify a different and more personalized settings for my instance) and a subnet group (a new subnet group specific for the instance). Secondly, I created the instance - specifically a memcache instance.
+6. On AWS, created an Amazon MQ instance. Clicked on the Amazon MQ service and firstly, created a parameter group (to specify a different and more personalized settings for my instance) and a subnet group (a new subnet group specific for the instance). Secondly, I created the instance - specifically a rabbitmq instance.
 
-7. On AWS, created an Amazon Elasticache instance. Clicked on the Elasticache service and created it - specifically a RabbitMQ instance
+7. On AWS, created an Amazon Elasticache instance. Clicked on the Elasticache service and created it - specifically a memcache instance
 
 8. On my PC, I cloned the project file and navigated into the application.properties file and updated the db, memcache,and RabbitMQ hosts using the host addresses from the created Amazon RDS, Elasticache, and MQ cloud native services.
 
